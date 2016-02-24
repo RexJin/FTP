@@ -123,7 +123,7 @@ int child_mission(int sfd)
 	return 0;
 }
 
-int check_pwd(int sfd)
+int check_pwd(int sfd)//必须用ROOT权限启动才能读取密码文件
 {
 	int flag;
 	char name[128]={0};
@@ -141,8 +141,11 @@ int check_pwd(int sfd)
 	get_salt(salt,sp->sp_pwdp);//获取salt值
 	if(strcmp(sp->sp_pwdp,crypt(pwd,salt))==0)//用户密码经过crypt与系统存储密码比较
 	{
+		char home_path[128];
 		flag=1;
 		send(sfd,&flag,4,0);
+		sprintf(home_path,"/home/%s",name);
+		chdir(home_path);//切换到用户目录
 		return 1;
 	}
 	else
